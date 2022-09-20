@@ -1,48 +1,53 @@
+
 %{
 	#include <stdio.h>
+	#include "calc.tab.h"
 %}
 
 %option yylineno
 
+D	[0-9]
 L	[a-zA-Z_]
-N 	[0-9]
+
+%% 
+
+[ \t\r\n]			{}
+"print"				{ return TOK_PRINT; }
+"="					{ return '=';  }
+"*"					{ return '*'; }
+"/"					{ return '/'; }
+"+"					{ return '+'; }
+"-"					{ return '-'; }
+"("					{ return '('; }
+")"					{ return ')'; }
+"^"					{ return '^'; }
+
+{D}+				{ return TOK_INTEGER; }
+{D}+\.{D}+			{ return TOK_FLOAT; }
+{L}({L}|{D})*		{ return TOK_IDENT; }
+ /* [a-zA-Z_][a-zA-Z0-9_]* {} */
+
+
+ /* comentário */
+.					{ printf("Invalid caracter: %c.\n", yytext[0]); }
 
 %%
 
-"print"					{ printf("TOK_MOSTRA\n"); }
-
-"+"						{ printf("TOK_MAIS\n"); }
-"-"						{ printf("TOK_MENOS\n"); }
-"="						{ printf("TOK_IGUAL\n"); }
-"*"						{ printf("TOK_MULTIPL\n"); }
-"/"						{ printf("TOK_DIVIDER\n"); }
-"("						{ printf("TOK_ABRE_PARENTESES\n"); }
-")"						{ printf("TOK_FECHA_PARENTESES\n"); }
-
-{N}+					{ printf("TOK_INTEIRO<%s>\n", yytext); }
-{N}+\.{N}+				{ printf("TOK_REAL<%s>\n", yytext); }
-{L}({L}|{N})*			{ printf("TOK_LITERAL<%s>\n", yytext); }
-
-.						{ printf("TOK_INVALIDO: %c\n", yytext[0]); }
-
-%%
+int yywrap() {
+	return 1;
+}
 
 int main(int argc, char *argv[]) {
-	if(argc <= 1) {
+	
+	if (argc <= 1) {
 		printf("%s [file]\n", argv[0]);
 		return 1;
 	}
-	
+
 	FILE *f = fopen(argv[1], "r");
-	
-	// Informa o arquivo que será compilado (f)
 	yyin = f;
-	
-	// Compila
-	yylex();
-	
+	yyparse();
 	fclose(f);
-	
 	return 0;
 }
 
