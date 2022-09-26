@@ -17,3 +17,6 @@ struct noh {
 typedef struct noh noh;
 
 noh *create_noh(enum noh_type nt, int children);
+
+void print(noh *root);
+void print_rec(FILE *f, noh *root);

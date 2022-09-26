@@ -1,5 +1,6 @@
 %{
 #include <stdio.h>
+
 #include "header.h"
 
 int yyerror(const char *s);
@@ -15,7 +16,7 @@ extern int yylineno;
 
 %define parse.error verbose
 
-%token TOK_PRINT TOK_IDENT TOK_INTEGER TOK_FLOAT TOK_LITERAL
+%token TOK_PRINT TOK_IDENT TOK_INTEGER TOK_FLOAT
 %start program
 
 %type <no> program stmts stmt atribuicao aritmetica term term2 factor
@@ -23,8 +24,10 @@ extern int yylineno;
 %%
 
 program : stmts {
-         noh *program = create_noh(PROGRAM, 1);
-         program->children[0] = $1;
+            noh *program = create_noh(PROGRAM, 1);
+            program->children[0] = $1;
+            
+            print(program);
          }
         ;
 
@@ -49,12 +52,20 @@ stmt : atribuicao {
      }
      ;
 
-atribuicao : TOK_IDENT '=' aritmetica {
+/* atribuicao : TOK_IDENT '=' aritmetica {
          $$ = create_noh(ASSIGN, 2);
          noh *aux = create_noh(IDENT, 0);
          aux->name = NULL;
          $$->children[0] = aux;
-         $$->children[2] = $3;
+         $$->children[1] = $3;
+      }
+      ; */
+
+atribuicao : TOK_IDENT '=' aritmetica {
+         $$ = create_noh(ASSIGN, 2);
+         $$->children[0] = create_noh(IDENT, 0);
+         $$->children[0]->name = NULL;
+         $$->children[1] = $3;
       }
       ;
 
@@ -93,7 +104,7 @@ term : term '*' term2 {
 term2 : term2 '^' factor {
          $$ = create_noh(POW, 2);
          $$->children[0] = $1;
-         $$->children[0] = $3;
+         $$->children[1] = $3;
       }
       | factor {
          $$ = create_noh(GENERIC, 1);

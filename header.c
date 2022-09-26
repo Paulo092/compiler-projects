@@ -1,7 +1,9 @@
 //header.h
 
-#include "header.h"
 #include <stdlib.h>
+#include <stdio.h>
+
+#include "header.h"
 
 noh *create_noh(enum noh_type nt, int children) {
 	static int IDCOUNT = 0;
@@ -14,4 +16,22 @@ noh *create_noh(enum noh_type nt, int children) {
 	newn->id = IDCOUNT++;
 	
 	return newn;
+}
+
+void print(noh *root) {
+	FILE *f = fopen("output.dot", "w");
+
+	fprintf(f, "graph {\n");
+	print_rec(f, root);
+	fprintf(f, "}");
+
+	fclose(f);
+}
+
+void print_rec(FILE *f, noh *root) {
+	fprintf(f, "\tN%d;\n", root->id);
+	for (int i = 0; i < root->childcount; i++) {
+		print_rec(f, root->children[i]);
+		fprintf(f, "\tN%d -- N%d;\n", root->id, root->children[i]->id);
+	}
 }
