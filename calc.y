@@ -12,11 +12,12 @@ extern int yylineno;
 
 %union {
     struct noh *no;
+    token_args args;
 }
 
 %define parse.error verbose
 
-%token TOK_PRINT TOK_IDENT TOK_INTEGER TOK_FLOAT
+%token TOK_PRINT <args> TOK_IDENT TOK_INTEGER TOK_FLOAT
 %start program
 
 %type <no> program stmts stmt atribuicao aritmetica term term2 factor
@@ -64,7 +65,7 @@ stmt : atribuicao {
 atribuicao : TOK_IDENT '=' aritmetica {
          $$ = create_noh(ASSIGN, 2);
          $$->children[0] = create_noh(IDENT, 0);
-         $$->children[0]->name = NULL;
+         $$->children[0]->name = $1.ident;
          $$->children[1] = $3;
       }
       ;
@@ -118,13 +119,13 @@ factor : '(' aritmetica ')' {
        }
        | TOK_IDENT {
           $$ = create_noh(IDENT, 0);
-          $$->name = NULL; }
+          $$->name = $1.ident; }
 	    | TOK_INTEGER {
           $$ = create_noh(INTEGER, 0);
-          $$->value = 0; }
+          $$->intv = $1.intv; }
 	    | TOK_FLOAT {
           $$ = create_noh(FLOAT, 0);
-          $$->value = 0;}
+          $$->dblv = $1.dblv;}
 	    ;
 
 
