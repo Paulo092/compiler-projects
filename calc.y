@@ -1,5 +1,6 @@
 %{
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "header.h"
 
@@ -33,38 +34,31 @@ program : stmts {
         ;
 
 /* stmts : stmt stmts { */
-stmts : stmts stmt {
-        // noh orig = $1;
-        // orig->childcount++;
-        // Realoca + memoria e adiciona novo filho
+stmts 
+    : stmts stmt { 
+        noh *n = $1;
+        n = (noh*)realloc(n, sizeof(noh) + sizeof(noh*)*(n->childcount));
+        n->children[n->childcount] = $2;
+        n->childcount++;
+        $$ = n;
+    }
+    | stmt {
+        $$ = create_noh(STMT, 1);
+        $$->children[0] = $1;
+    }
+	;
 
-        // $$ = create_noh(STMT, $1->childcount+1);
-        // for()
-        // $$->children[i] = orig;
-
-         $$ = create_noh(STMT, 2);
-         $$->children[0] = $1;
-         $$->children[1] = $2;
-
-        //  free(orig);
-      }
-      | stmt {
-         $$ = $1;
-        //  $$ = create_noh(STMT, 1);
-        //  $$->children[0] = $1;
-      }
-	   ;
-
-stmt : atribuicao {
+stmt 
+    : atribuicao {
         $$ = $1;
         //  $$ = create_noh(GENERIC, 1);
         //  $$->children[0] = $1;
-     }
-     | TOK_PRINT aritmetica {
-         $$ = create_noh(PRINT, 1);
-         $$->children[0] = $2;
-     }
-     ;
+    }
+    | TOK_PRINT aritmetica {
+        $$ = create_noh(PRINT, 1);
+        $$->children[0] = $2;
+    }
+    ;
 
 /* atribuicao : TOK_IDENT '=' aritmetica {
          $$ = create_noh(ASSIGN, 2);
