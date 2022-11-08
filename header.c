@@ -52,3 +52,31 @@ void print_rec(FILE *f, noh *root) {
 		fprintf(f, "\tN%d -- N%d;\n", root->id, root->children[i]->id);
 	}
 }
+
+int search_symbol(char *nome){
+	// busca linear, nao eficiente
+	for(int i = 0; i < simbolo_qnt; i++){
+		if(strcmp(tsimbolos[i].nome, nome) == 0)
+			return i;
+	}
+
+	return -1;
+}
+
+void check_declared_vars(noh **root, noh *no) {
+	noh *nr = *root;
+
+	if(no->type == ASSIGN) {
+		int s = search_symbol(no->children[0]->name);
+		if(s != -1) tsimbolos[s].exists = true;
+	}
+}
+
+void visitor_leaf_first(noh ** root, visitor_action act) {
+	noh *r = *root;
+
+	for(int i = 0; i < r->childcount; i++) {
+		visitor_leaf_first(&r->children[i], act);
+		if(act != NULL) act(root, r->children[i]);
+	}
+}

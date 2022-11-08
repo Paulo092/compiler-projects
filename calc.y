@@ -12,17 +12,6 @@ int yylex (void);
 //#define YYERROR_VERBOSE 1
 extern int yylineno;
 
-typedef struct {
-	char *nome;
-	int token;
-} simbolo;
-
-int simbolo_qnt = 0;
-simbolo tsimbolos[100];
-simbolo *simbolo_novo(char *nome, int token);
-bool simbolo_existe(char *nome);
-void debug();
-
 %}
 
 %union {
@@ -45,6 +34,8 @@ program : stmts {
             
             print(program);
             debug();
+
+            visitor_leaf_first(&program, check_declared_vars);
          }
         ;
 
@@ -167,6 +158,7 @@ int yyerror(const char *s) {
 printf("Erro na linha %d: %s\n", yylineno, s);
 	return 1;
 }
+
 
 simbolo *simbolo_novo(char *nome, int token){
 	tsimbolos[simbolo_qnt].nome = nome;
